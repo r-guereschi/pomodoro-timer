@@ -6,29 +6,52 @@ const bannerFoto = document.querySelector(".app__image");
 const title = document.querySelector(".app__title");
 const titleStrong = document.querySelector(".app__title-strong");
 const botoes = document.querySelectorAll(".app__card-button");
+const song = new Audio("sons/luna-rise-part-one.mp3");
+const play = new Audio("sons/play.wav");
+const pause = new Audio("sons/pause.mp3");
+const beep = new Audio("sons/beep.mp3");
+const iniciarOuPausarBt = document.querySelector("#start-pause span");
+const startPauseImg = document.querySelector(".app__card-primary-butto-icon");
+const timer = document.getElementById("timer");
+
+const checkBox = document.getElementById("alternar-musica");
+const startPauseBt = document.getElementById("start-pause");
+song.loop = true;
+
+let tempoDecorridoEmSegundos = 1500;
+let intervaloId = null;
+
+checkBox.addEventListener("change", () => {
+  if (song.paused) {
+    song.play();
+  } else {
+    song.pause();
+  }
+});
 
 botaoFoco.addEventListener("click", () => {
+  tempoDecorridoEmSegundos = 1500;
   alterarContexto("foco");
-  botaoLongo.classList.remove("active");
-  botaoCurto.classList.remove("active");
   botaoFoco.classList.add("active");
 });
 
 botaoCurto.addEventListener("click", () => {
+  tempoDecorridoEmSegundos = 300;
   alterarContexto("descanso-curto");
-  botaoLongo.classList.remove("active");
   botaoCurto.classList.add("active");
-  botaoFoco.classList.remove("active");
 });
 
 botaoLongo.addEventListener("click", () => {
+  tempoDecorridoEmSegundos = 900;
   alterarContexto("descanso-longo");
   botaoLongo.classList.add("active");
-  botaoCurto.classList.remove("active");
-  botaoFoco.classList.remove("active");
 });
 
 function alterarContexto(contexto) {
+  mostrarTempo();
+  botoes.forEach(function (contexto) {
+    contexto.classList.remove("active");
+  });
   html.setAttribute("data-contexto", contexto);
   bannerFoto.setAttribute("src", `/imagens/${contexto}.png`);
   switch (contexto) {
@@ -48,3 +71,58 @@ function alterarContexto(contexto) {
       break;
   }
 }
+
+const contagemRegressiva = () => {
+  if (tempoDecorridoEmSegundos <= 0) {
+    beepAudio();
+    alert("Tempo finalizado");
+    zerar();
+    return;
+  }
+  tempoDecorridoEmSegundos -= 1;
+  mostrarTempo();
+};
+
+startPauseBt.addEventListener("click", iniciarPausar);
+
+function iniciarPausar() {
+  if (intervaloId) {
+    pauseAudio();
+    zerar();
+    return;
+  }
+  playAudio();
+  intervaloId = setInterval(contagemRegressiva, 1000);
+  iniciarOuPausarBt.textContent = "Pausar";
+  startPauseImg.src = "imagens/pause.png";
+}
+
+function zerar() {
+  clearInterval(intervaloId);
+  iniciarOuPausarBt.textContent = "Começar";
+  startPauseImg.src = "imagens/play_arrow.png";
+  intervaloId = null;
+}
+
+function playAudio() {
+  play.play();
+}
+
+function pauseAudio() {
+  pause.play();
+}
+
+function beepAudio() {
+  beep.play();
+}
+
+function mostrarTempo() {
+  const tempo = new Date(tempoDecorridoEmSegundos * 1000);
+  const tempoFormatado = tempo.toLocaleTimeString("pt-BR", {
+    minute: "2-digit",
+    second: "2-digit",
+  });
+  timer.innerHTML = `${tempoFormatado}`;
+}
+
+mostrarTempo();
