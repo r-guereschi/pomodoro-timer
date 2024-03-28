@@ -18,7 +18,7 @@ const checkBox = document.getElementById("alternar-musica");
 const startPauseBt = document.getElementById("start-pause");
 song.loop = true;
 
-let tempoDecorridoEmSegundos = 1500;
+let tempoDecorridoEmSegundos = 5;
 let intervaloId = null;
 
 checkBox.addEventListener("change", () => {
@@ -30,19 +30,19 @@ checkBox.addEventListener("change", () => {
 });
 
 botaoFoco.addEventListener("click", () => {
-  tempoDecorridoEmSegundos = 1500;
+  tempoDecorridoEmSegundos = 5;
   alterarContexto("foco");
   botaoFoco.classList.add("active");
 });
 
 botaoCurto.addEventListener("click", () => {
-  tempoDecorridoEmSegundos = 300;
+  tempoDecorridoEmSegundos = 2;
   alterarContexto("descanso-curto");
   botaoCurto.classList.add("active");
 });
 
 botaoLongo.addEventListener("click", () => {
-  tempoDecorridoEmSegundos = 900;
+  tempoDecorridoEmSegundos = 3;
   alterarContexto("descanso-longo");
   botaoLongo.classList.add("active");
 });
@@ -75,7 +75,12 @@ function alterarContexto(contexto) {
 const contagemRegressiva = () => {
   if (tempoDecorridoEmSegundos <= 0) {
     beepAudio();
-    alert("Tempo finalizado");
+    //alert("Tempo finalizado");
+    const focoAtivo = html.getAttribute("data-contexto") == "foco";
+    if (focoAtivo) {
+      const evento = new CustomEvent("FocoFinalizado");
+      document.dispatchEvent(evento)
+    }
     zerar();
     return;
   }
